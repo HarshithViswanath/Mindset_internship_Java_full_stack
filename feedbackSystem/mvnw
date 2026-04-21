@@ -1,0 +1,7 @@
+#!/bin/sh
+# Maven Wrapper (Takari) — Git Bash / WSL / macOS / Linux
+BASEDIR=$(dirname "$0")
+BASEDIR=$(cd "$BASEDIR" && pwd)
+exec java "-Dmaven.multiModuleProjectDirectory=$BASEDIR" \
+  -cp "$BASEDIR/.mvn/wrapper/maven-wrapper.jar" \
+  org.apache.maven.wrapper.MavenWrapperMain "$@"

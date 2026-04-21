@@ -1,0 +1,191 @@
+HARSHITH V - 1MJ22CS073,
+ASSIGNMENT - MARCH-14-2026
+
+
+### 1. Basic Question – Website IP & Hostname (`WebsiteInfo.java`)
+
+```java
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class WebsiteInfo {
+    public static void main(String[] args) {
+        String website = "www.google.com";  // change as needed
+
+        try {
+            InetAddress inetAddress = InetAddress.getByName(website);
+
+            System.out.println("Host Name: " + inetAddress.getHostName());
+            System.out.println("IP Address: " + inetAddress.getHostAddress());
+        } catch (UnknownHostException e) {
+            System.out.println("Unable to resolve host: " + website);
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+---
+
+### 2. Local Host Name & IP (`LocalHostInfo.java`)
+
+```java
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class LocalHostInfo {
+    public static void main(String[] args) {
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+
+            System.out.println("Local Host Name: " + localHost.getHostName());
+            System.out.println("Local IP Address: " + localHost.getHostAddress());
+        } catch (UnknownHostException e) {
+            System.out.println("Unable to get local host information.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+---
+
+### 3. Server Using `ServerSocket` on Port 5000 (`SimpleServer.java`)
+
+```java
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class SimpleServer {
+    public static void main(String[] args) {
+        final int PORT = 5000;
+
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server started. Waiting for client on port " + PORT + "...");
+
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Client connected from: " +
+                    clientSocket.getInetAddress().getHostAddress());
+
+            clientSocket.close();
+        } catch (IOException e) {
+            System.out.println("Server error.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+---
+
+### 4. Client Connecting to Server on Port 5000 (`SimpleClient.java`)
+
+```java
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+public class SimpleClient {
+    public static void main(String[] args) {
+        final String SERVER_HOST = "localhost";  // or server IP
+        final int SERVER_PORT = 5000;
+
+        try {
+            InetAddress serverAddress = InetAddress.getByName(SERVER_HOST);
+            System.out.println("Attempting to connect to server " +
+                    SERVER_HOST + " on port " + SERVER_PORT + "...");
+
+            try (Socket socket = new Socket(serverAddress, SERVER_PORT)) {
+                System.out.println("Connected to server: " +
+                        socket.getInetAddress().getHostAddress());
+            }
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown host: " + SERVER_HOST);
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("I/O error while connecting to server.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Run `SimpleServer` first, then `SimpleClient`.
+
+---
+
+### 5. Simple One-Way Chat (Client Sends, Server Reads)  
+
+For this question, you need **two files** (both belong to Question 5).
+
+#### 5(a). Server (`ChatServer.java`)
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ChatServer {
+    public static void main(String[] args) {
+        final int PORT = 6000;
+
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Chat server started. Waiting for client on port " + PORT + "...");
+
+            try (Socket clientSocket = serverSocket.accept();
+                 BufferedReader in = new BufferedReader(
+                         new InputStreamReader(clientSocket.getInputStream()))) {
+
+                System.out.println("Client connected from: " +
+                        clientSocket.getInetAddress().getHostAddress());
+
+                String message = in.readLine();
+                System.out.println("Received message from client: " + message);
+            }
+        } catch (IOException e) {
+            System.out.println("Chat server error.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+#### 5(b). Client (`ChatClient.java`)
+
+```java
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+public class ChatClient {
+    public static void main(String[] args) {
+        final String SERVER_HOST = "localhost";  // or server IP
+        final int SERVER_PORT = 6000;
+        final String MESSAGE = "Hello from client!";
+
+        try {
+            InetAddress serverAddress = InetAddress.getByName(SERVER_HOST);
+
+            try (Socket socket = new Socket(serverAddress, SERVER_PORT);
+                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                System.out.println("Connected to chat server.");
+                out.println(MESSAGE);
+                System.out.println("Message sent to server: " + MESSAGE);
+            }
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown host: " + SERVER_HOST);
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("I/O error in chat client.");
+            e.printStackTrace();
+        }
+    }
+}
+```
